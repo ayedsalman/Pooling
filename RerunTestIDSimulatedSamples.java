@@ -163,6 +163,7 @@ public class RerunTestIDSimulatedSamples {
                      {
                             while(!po.checkDeconvComplete(recovSamp))
                            {
+                               clustCoeff = 4;
                                ArrayList<Pool> reseqSamp = ps.reSequencing(recovSamp, minReads);
                                ArrayList<Pool> newrecovSamp = po.postprocessReseq(recovSamp, reseqSamp, clustCoeff, alignMethod, clustMethod);
                                recovSamp = newrecovSamp;
