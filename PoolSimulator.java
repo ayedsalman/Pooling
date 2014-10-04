@@ -1109,9 +1109,7 @@ public class PoolSimulator {
       {
           StringTokenizer st = new StringTokenizer(genFile,"_" + File.separator);
           st.nextToken();
-          String testID = "_" + st.nextToken() + "_" + st.nextToken();
-          st.nextToken();
-          testID += "_" + st.nextToken();
+          String testID = "_" + st.nextToken() + "_" + st.nextToken()+ "_" + st.nextToken();
 
           
           FileWriter fw = new FileWriter(reportFile);
@@ -1286,6 +1284,176 @@ public class PoolSimulator {
           double percContSamp = 100*((double) contSamp/nSamp);
           double percGoodReads = 100*((double) goodReads/classifiedReads);
           double percClassified = 100*((double) classifiedReads/allReads);
+          double avpercsContReads = 0;
+          for (Double d : percsContReads)
+              avpercsContReads+=d;
+          avpercsContReads/=contSamp;
+          
+          // Root mean square error of frequencies
+          double rmse = 0;
+          int nReadsPooling = 0;
+          brGen = new BufferedReader(new FileReader(genFile));
+          for (int i = 1; i <= nSamp; i++)
+          {
+              String s = brGen.readLine();
+              st = new StringTokenizer(s," ");
+              st.nextToken();
+              String sampGenFile = st.nextToken();
+              DataSet ds_orig = null;
+              DataSet ds_infer = null;
+              try
+              {
+                  ds_orig = new DataSet(genSampFolder + File.separator + sampGenFile,"ET");
+                  ds_infer = new DataSet(outdir + File.separator + "Samp" + i + testID + "_reseq.fas_" + i + ".fas","ET");
+              }
+              catch(Exception e)
+              {
+                  System.err.println(genSampFolder + File.separator + sampGenFile);
+                  System.err.println(outdir + File.separator + "Samp" + i + testID + "_reseq.fas_" + i + ".fas");
+              }
+              int nOrig = ds_orig.getTotalNReads();
+              int nInfer = ds_infer.getTotalNReads();
+              for (Read r : ds_infer.reads)
+              {
+                  nReadsPooling++;
+                  double inferFreq = (double) r.getFreq();
+                  double origFreq = (double) ds_orig.getFrequency(r);
+                  double diff = 100*(inferFreq/nInfer - origFreq/nOrig);
+                  rmse += diff*diff;
+              }                         
+          }
+          rmse = Math.sqrt(rmse/nReadsPooling);
+          
+          fw.write("Perc of recovered samp: " + percGoodSamp + "\n");
+          fw.write("Perc of cont samp: " + percContSamp + "\n");
+          fw.write("Perc of correctly classified reads: " + percGoodReads + "\n");
+          fw.write("Av perc of wrongly classified reads in cont samp: " + avpercsContReads + "\n");
+          fw.write("Number of pools: " + nPools + "\n");
+          fw.write("Working time: " + ((double) workTime)/1000 + "\n");
+          fw.write("Perc of classified reads: " + percClassified + "\n");
+          fw.write("Root mean square error: " + rmse + "\n");
+          fw.close();
+          brGen.close();
+          brRes.close();
+      }
+      void generateReportReseq(String genFile, String resFile, String reportFile,String misSampFile, int nPools, long workTime, String outdir, int nSamp, String genSampFolder) throws IOException
+      {
+          HashMap<String,Integer> sampID = new HashMap();
+          HashMap<String,Integer> sampNReads = new HashMap();
+          BufferedReader brGen = new BufferedReader(new FileReader(genFile));
+          String sg = brGen.readLine();
+          while (sg != null)
+          {
+              StringTokenizer st = new StringTokenizer(sg,": _");
+              int i = Integer.parseInt(st.nextToken());
+              String samp = st.nextToken();
+              st.nextToken();
+              int reads = Integer.parseInt(st.nextToken());
+              sampID.put(samp, i);
+              sampNReads.put(samp, reads);
+              sg = brGen.readLine();
+          }
+          
+          HashMap<String,Integer> sampNRecReads = new HashMap();
+          BufferedReader brRes = new BufferedReader(new FileReader(resFile));
+          for (int i = 0; i < nSamp; i++)
+          {
+              String s = brRes.readLine();
+              StringTokenizer st = new StringTokenizer(s," ");
+              st.nextToken();
+              while (st.hasMoreTokens())
+              {
+                  String samp = st.nextToken();
+                  int reads = Integer.parseInt(st.nextToken());
+                  st.nextToken();
+                  if (sampNRecReads.containsKey(samp))
+                      sampNRecReads.put(samp, sampNRecReads.get(samp) + reads);
+                  else
+                      sampNRecReads.put(samp, reads);
+              }
+          }
+         
+          HashSet<Integer> misSamp = new HashSet();
+          for (Map.Entry me : sampNReads.entrySet())
+          {
+              String samp = (String) me.getKey();
+              int reads = (Integer) me.getValue();
+              int recreads = sampNRecReads.get(samp);
+              if (reads < recreads)
+                  misSamp.add(sampID.get(samp));
+          }
+          
+
+          
+          File f = new File(resFile);
+          if (!f.exists())
+              return;
+          
+          StringTokenizer st = new StringTokenizer(genFile,"_" + File.separator);
+          st.nextToken();
+          String testID = "_" + st.nextToken() + "_" + st.nextToken() + "_" + st.nextToken();
+
+          
+          FileWriter fw = new FileWriter(reportFile);
+          brGen = new BufferedReader(new FileReader(genFile));
+          brRes = new BufferedReader(new FileReader(resFile));
+          int goodReads = 0;
+          int goodSamp = 0;
+          int allReads = 0;
+          int allReadsNoMis = 0;
+          int contSamp = 0;
+          int classifiedReads = 0;
+          int classifiedReadsNoMis = 0;
+          ArrayList<Double> percsContReads = new ArrayList();
+          for (int i = 0; i < nSamp; i++)
+          {
+              String sgen = brGen.readLine();
+              String sres = brRes.readLine();
+              StringTokenizer stGen = new StringTokenizer(sgen," _");
+              StringTokenizer stRes = new StringTokenizer(sres," _");
+              int nTok = stRes.countTokens();
+              stGen.nextToken();
+              stRes.nextToken();
+              String realSamp = stGen.nextToken();
+              stGen.nextToken();
+              int realReads = Integer.parseInt(stGen.nextToken());
+              allReads+=realReads;
+              if (!misSamp.contains(i+1))
+                  allReadsNoMis += realReads;
+              boolean isFound = false;
+              int allReadsSamp = 0;
+              int allContReadsSamp = 0;
+              while (stRes.hasMoreTokens())
+              {
+                  String samp = stRes.nextToken();
+                  int reads = Integer.parseInt(stRes.nextToken());
+                  allReadsSamp += reads;
+                  classifiedReads+=reads;
+                  if (!misSamp.contains(sampID.get(samp)))
+                      classifiedReadsNoMis+=reads;
+                  stRes.nextToken();
+                  if (samp.equalsIgnoreCase(realSamp))
+                  {
+                      goodSamp++;
+                      goodReads+=reads;
+                      isFound = true;
+                  }
+                  else
+                  {
+                      allContReadsSamp+=reads;
+                  }
+              }
+              if (isFound && (nTok > 4))
+              {
+                  contSamp++;
+                  double d = 100*((double) allContReadsSamp/allReadsSamp);
+                  percsContReads.add(d);
+              }
+          }
+          double percGoodSamp = 100*((double) goodSamp/nSamp);
+          double percContSamp = 100*((double) contSamp/nSamp);
+          double percGoodReads = 100*((double) goodReads/classifiedReads);
+          double percClassified = 100*((double) classifiedReadsNoMis/allReadsNoMis);
           double avpercsContReads = 0;
           for (Double d : percsContReads)
               avpercsContReads+=d;

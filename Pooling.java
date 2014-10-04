@@ -93,14 +93,11 @@ public class Pooling {
              String outdir = "Test_" + maxPoolSize + "_" + n + "_" + it + "_forRobust_clCoeff4";
              File rep = new File(outdir + File.separator + "report_reseq.txt");
 
-                   double rec = 0;
+/*                   double rec = 0;
                    if (rep.exists())
                    {
-                       FileWriter fw = new FileWriter("Good_" + maxPoolSize + "_" + n + "_" + it + "_forRobust_clCoeff4");
-                           fw.write("Already done");
-                           fw.close();
-                           return;
-/*                       BufferedReader br = new BufferedReader(new FileReader(outdir + File.separator + "report_reseq.txt")); 
+
+                       BufferedReader br = new BufferedReader(new FileReader(outdir + File.separator + "report_reseq.txt")); 
                        String s1 = br.readLine();
                        StringTokenizer st = new StringTokenizer(s1,":");
                        st.nextToken();
@@ -111,8 +108,8 @@ public class Pooling {
                            fw.write("Already done");
                            fw.close();
                            return;
-                       }*/
-                   } 
+                       }
+                   } */
 
                    double percBadPools = Math.random()*maxpercBadPools;
                    double percMisSamp = Math.random()*maxpercMisSamp;
@@ -130,7 +127,7 @@ public class Pooling {
                    PoolsOperator po = new PoolsOperator();
                    File dir = new File(outdir);
 
-                   Files.deleteRecursively(dir);
+//                   Files.deleteRecursively(dir);
 
                    dir.mkdir();
                    po.setOutdir(outdir);

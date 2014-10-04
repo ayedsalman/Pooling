@@ -23,9 +23,9 @@ public class RunTestIDSimulatedSamples {
      {
          int nSeqPool = 10000;
          int nRef = 3;
-         int[] ns = {80};
+         int[] ns = {50};
          int[] maxPoolSizes = {15};
-         int[] Tests = {4};
+         int[] Tests = {2};
  //        int nTests = 10;
          int clustCoeff = 2;
          
@@ -61,7 +61,7 @@ public class RunTestIDSimulatedSamples {
                 int nPools = partitions.size();
          
                 PoolsOperator po = new PoolsOperator();
-                String outdir = "Test_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + Tests[it] + "_forRobust";
+                String outdir = "Test_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + Tests[it] + "_forRobust_clCoeff4";
                 File dir = new File(outdir);
                 dir.mkdir();
                 po.setOutdir(outdir);
@@ -173,6 +173,7 @@ public class RunTestIDSimulatedSamples {
                      {
                             while(!po.checkDeconvComplete(recovSamp))
                            {
+                               clustCoeff = 4;
                                ArrayList<Pool> reseqSamp = ps.reSequencing(recovSamp);
                                ArrayList<Pool> newrecovSamp = po.postprocessReseq(recovSamp, reseqSamp, clustCoeff, alignMethod, clustMethod);
                                recovSamp = newrecovSamp;

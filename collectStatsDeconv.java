@@ -33,7 +33,7 @@ public class collectStatsDeconv {
          {
              for (int cl = 0; cl < clcoeffs.length; cl++)
              {
-                 FileWriter fw = new FileWriter("statistics_" + maxPoolSizes[sz] + "_" + clcoeffs[cl] + ".txt");
+                 FileWriter fw = new FileWriter("statistics_" + maxPoolSizes[sz] + "_" + clcoeffs[cl] + "_clCoeff4.txt");
                  ArrayList<String[][]> data = new ArrayList();
                  for (int i = 0; i < params.length; i++)
                      data.add(new String[nTests][ns.length]);
@@ -46,7 +46,7 @@ public class collectStatsDeconv {
                      for (int it = 0; it < nTests; it++)
                      {
 //                        String outdir = "Test_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + it;
-                        String outdir = "Test_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + it + "_forRobust";
+                        String outdir = "Test_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + it + "_forRobust_clCoeff4";
                         String repFile = outdir + File.separator + "report_reseq_new.txt";
                         
                         File f = new File(repFile);

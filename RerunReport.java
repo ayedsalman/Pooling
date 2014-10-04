@@ -19,9 +19,9 @@ public class RerunReport {
          int[] maxPoolSizes = {15};
          int[] tests = {0,1,2,3,4,5,6,7,8,9};
          
-/*         int[] ns = {100};
+/*         int[] ns = {20};
          int[] maxPoolSizes = {15};
-         int[] tests = {1};*/
+         int[] tests = {3};*/
          
          int[] clcoeffs = {2};
          String genSampFolder = "Clean_by_cutoffs_meta10_split_new_1";
@@ -31,16 +31,17 @@ public class RerunReport {
                  for (int cl = 0; cl < clcoeffs.length; cl++)
                  {
 //                     String outdir = "Test_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + it;
-                     String outdir = "Test_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + tests[it] + "_forRobust";
+                     String outdir = "Test_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + tests[it] + "_forRobust_clCoeff4";
                      System.out.println(outdir);
                      PoolSimulator ps = new PoolSimulator();
                      String genlogfile = outdir + File.separator + "gen_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + tests[it] + ".txt";
                      String resFile = outdir + File.separator + "resReseq_" + maxPoolSizes[sz] + "_" + ns[in] + "_" + tests[it] + ".txt";
                      String reportFile = outdir + File.separator + "report_reseq_new.txt";
+                     String misSampFile = outdir + File.separator + "misSamp.txt";
                      ArrayList<ArrayList<Integer>> partitions = ps.retrievePartitions(outdir);
                      int nPools = partitions.size();
                      int n = ns[in];
-                     ps.generateReportReseq(genlogfile, resFile, reportFile, nPools, 0, outdir, n,genSampFolder);
+                     ps.generateReportReseq(genlogfile, resFile, reportFile,misSampFile, nPools, 0, outdir, n,genSampFolder);
                      
                  }
     }
